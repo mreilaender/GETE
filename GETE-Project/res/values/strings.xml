@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">GETE-Project</string>
+    <string name="s_start_button">null</string>
+    <string name="dummy_content">HAHAHAHHA</string>
+	<string name="tv1"></string>
+	<string name="s_weg">null</string>
+	<string name="s_headLine">null</string>
+	<string name="s_input"></string>
+	<string name="s_unit">meter</string>
+</resources>
