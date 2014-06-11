@@ -167,15 +167,33 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 					runOnUiThread(new Runnable() {
 						public void run() {
 
-							if(TimeCounterMS % 50 == 0)
+							if(TimeCounterMS % 10 == 0)
 							{
 								if((f1[0] < 4.0f && f1[1] < 4.0f && f1[2] < 4.0f))
 								{
 									count++;
-									if(count > 3)
+									if(count > 20)
 									{
+										
+										debugView.setText(TimeCounter + ":" + TimeCounterMS);
+										
+										tsec.cancel();
+										tms.cancel();
 
+										sm.unregisterListener(listener.get(0));
+										start.setText("START");
+
+										b_start = jo = false;
+
+										tsec = new Timer();
+										tms = new Timer();
+
+										TimeCounter = TimeCounterMS = 0;
+										timeView.setText(""+TimeCounter+" s " + TimeCounterMS + " ms");
 									}
+								} else {
+									
+									count = 0;
 								}
 							}
 							if(TimeCounterMS == 1000)
@@ -188,21 +206,6 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 								TimeCounterMS++;
 								timeView.setText(""+TimeCounter + " s " + TimeCounterMS + " ms");
 							}
-						}
-					});
-
-				}
-			}, 0, 1);
-			tms.scheduleAtFixedRate(new TimerTask() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					runOnUiThread(new Runnable() {
-						public void run() {
-							if(TimeCounterMS == 1000)
-								TimeCounterMS = 0;
-							timeView.setText(""+TimeCounter + " s " + TimeCounterMS + " ms"); // you can set it to a textView to show it to the user to see the time passing while he is writing.
-							TimeCounterMS++;
 						}
 					});
 
