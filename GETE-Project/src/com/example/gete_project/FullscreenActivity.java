@@ -33,7 +33,7 @@ import android.widget.TextView;
 public class FullscreenActivity extends Activity implements OnClickListener, OnItemSelectedListener
 {
 	private boolean jo, b_start;
-	private float aMax;
+	private float[] f1;
 	private Timer tsec, tms;
 	//TimeCounter - counter that increments every secound
 	//TimeCounterMs - counter that increments every millisecound 
@@ -58,7 +58,7 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 		jo = false;
 		b_start = false;
 		maxValues = 1000;
-		aMax = 0;
+		f1 = new float[3];
 
 		/* Objekt Attribute setzen */
 		numbValues = new String[maxValues];
@@ -113,63 +113,86 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 		start.setText("START");
 		start.setOnClickListener(this);
 
-		headLine.setText("GETE - Project v1.9.0 Hash: "+this.hashCode());
+		headLine.setText("GETE - Project v2.0.0 Hash-Code: "+this.hashCode());
 	}
 	public void listen(float[] f)
 	{
+		f1[0] = f[0];
+		f1[1] = f[1];
+		f1[2] = f[2];
 		//		this.headLine.setText("Test: "+numberPicker.getValue());
 		//		int i = 0;
 		//		start.setText("f["+i+"]: "+f[0]);
 
-		if(TimeCounter != 0)
-		{
-			if(f[0] < 4.0 && f[1] < 4.0 && f[2] < 4.0) {
+		//		if(TimeCounter != 0)
+		//		{
+		//			if(f[0] < 4.0 && f[1] < 4.0 && f[2] < 4.0) {
+		//
+		//				count++;
+		//				if(count > 20) {
+		//					if(b_start)
+		//					{
+		//						this.tsec.cancel();
+		//						this.tms.cancel();
+		//
+		//						sm.unregisterListener(listener.get(0));
+		//						start.setText("START");
+		//
+		//						this.b_start = this.jo = false;
+		//
+		//						this.tsec = new Timer();
+		//						this.tms = new Timer();
+		//
+		//						debugView.setText(TimeCounter + ":" + TimeCounterMS);
+		//
+		//						this.TimeCounter = this.TimeCounterMS = 0;
+		//						this.timeView.setText("0 s 0 ms");
+		//
+		//					}
+		//				}
+		//			} else {
+		//
+		//				count = 0;
+		//			}
+		//		}
 
-				count++;
-				if(count > 20) {
-					if(b_start)
-					{
-						this.tsec.cancel();
-						this.tms.cancel();
-
-						sm.unregisterListener(listener.get(0));
-						start.setText("START");
-
-						this.b_start = this.jo = false;
-
-						this.tsec = new Timer();
-						this.tms = new Timer();
-
-						debugView.setText(TimeCounter + ":" + TimeCounterMS);
-
-						this.TimeCounter = this.TimeCounterMS = 0;
-						this.timeView.setText("0 s 0 ms");
-
-					}
-				}
-			} else {
-
-				count = 0;
-			}
-		}
-
-		else if((f[0]>5.0f || f[1]>5.0f || f[2]>5.0f) && jo == false)
+		//else 
+		if((f[0]>5.0f || f[1]>5.0f || f[2]>5.0f) && jo == false)
 		{
 			//			start.setText("in if");
 			jo=true;
 			tsec.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
-					// TODO Auto-generated method stub
 					runOnUiThread(new Runnable() {
 						public void run() {
-							timeView.setText(""+TimeCounter+ " s " + TimeCounterMS + " ms");
-							TimeCounter++;
+
+							if(TimeCounterMS % 50 == 0)
+							{
+								if((f1[0] < 4.0f && f1[1] < 4.0f && f1[2] < 4.0f))
+								{
+									count++;
+									if(count > 3)
+									{
+
+									}
+								}
+							}
+							if(TimeCounterMS == 1000)
+							{
+								TimeCounter++;
+								TimeCounterMS = 0;
+								timeView.setText(""+TimeCounter+ " s " + TimeCounterMS + " ms");
+							} else
+							{
+								TimeCounterMS++;
+								timeView.setText(""+TimeCounter + " s " + TimeCounterMS + " ms");
+							}
 						}
 					});
 
 				}
-			}, 0, 1000);
+			}, 0, 1);
 			tms.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
@@ -190,6 +213,7 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 	@Override
 	public void onClick(View v)
 	{
+
 		if(!b_start)
 		{
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
