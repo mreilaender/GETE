@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -37,16 +38,18 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 	private Timer tsec, tms;
 	//TimeCounter - counter that increments every secound
 	//TimeCounterMs - counter that increments every millisecound 
-	private int TimeCounter, TimeCounterMS, maxValues, count;
+	private int timeCounter, timeCounterMS, maxValues, count;
 	private ArrayList<Listener> listener;
 	public Button start;
 	private String[] options, numbValues;
 	public TextView headLine, timeView, debugView;
+	private EditText distance;
 	private SensorManager sm;
 	public Sensor s1, s2;
 	private Spinner spinner;
 	private ArrayAdapter<String> arrAdapter;
 	private NumberPicker numberPicker;
+	private boolean finish = false;
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -69,6 +72,8 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 		numberPicker.setMinValue(1);
 		numberPicker.setMaxValue(maxValues);
 		numberPicker.setValue(1);
+		
+		distance = (EditText) findViewById(R.id.editText1);
 
 		options = new String[3];
 		options[0] = "Meter";
@@ -102,7 +107,7 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 
 		s2 = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
-		TimeCounter = TimeCounterMS = 0;
+		timeCounter = timeCounterMS = 0;
 
 		/* Generic Objekte setzen */
 		listener = new ArrayList<Listener>();
@@ -113,53 +118,16 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 		start.setText("START");
 		start.setOnClickListener(this);
 
-		headLine.setText("GETE - Project v2.0.0 Hash-Code: "+this.hashCode());
+		this.numberPicker.setVisibility(View.GONE);
+		headLine.setText("GETE - Project v3.0.0 Hash-Code: "+this.hashCode());
 	}
 	public void listen(float[] f)
 	{
 		f1[0] = f[0];
 		f1[1] = f[1];
 		f1[2] = f[2];
-		//		this.headLine.setText("Test: "+numberPicker.getValue());
-		//		int i = 0;
-		//		start.setText("f["+i+"]: "+f[0]);
-
-		//		if(TimeCounter != 0)
-		//		{
-		//			if(f[0] < 4.0 && f[1] < 4.0 && f[2] < 4.0) {
-		//
-		//				count++;
-		//				if(count > 20) {
-		//					if(b_start)
-		//					{
-		//						this.tsec.cancel();
-		//						this.tms.cancel();
-		//
-		//						sm.unregisterListener(listener.get(0));
-		//						start.setText("START");
-		//
-		//						this.b_start = this.jo = false;
-		//
-		//						this.tsec = new Timer();
-		//						this.tms = new Timer();
-		//
-		//						debugView.setText(TimeCounter + ":" + TimeCounterMS);
-		//
-		//						this.TimeCounter = this.TimeCounterMS = 0;
-		//						this.timeView.setText("0 s 0 ms");
-		//
-		//					}
-		//				}
-		//			} else {
-		//
-		//				count = 0;
-		//			}
-		//		}
-
-		//else 
 		if((f[0]>5.0f || f[1]>5.0f || f[2]>5.0f) && jo == false)
 		{
-			//			start.setText("in if");
 			jo=true;
 			tsec.scheduleAtFixedRate(new TimerTask() {
 				@Override
@@ -167,16 +135,13 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 					runOnUiThread(new Runnable() {
 						public void run() {
 
-							if(TimeCounterMS % 10 == 0)
+							if(timeCounterMS % 10 == 0)
 							{
-								if((f1[0] < 4.0f && f1[1] < 4.0f && f1[2] < 4.0f))
+								if((f1[0] < 3.0f && f1[1] < 3.0f && f1[2] < 3.0f))
 								{
 									count++;
 									if(count > 20)
 									{
-										
-										debugView.setText(TimeCounter + ":" + TimeCounterMS);
-										
 										tsec.cancel();
 										tms.cancel();
 
@@ -187,24 +152,29 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 
 										tsec = new Timer();
 										tms = new Timer();
-
-										TimeCounter = TimeCounterMS = 0;
-										timeView.setText(""+TimeCounter+" s " + TimeCounterMS + " ms");
+										
+										try {
+											debugView.setText("" + (Float.parseFloat(distance.getText().toString()) / (((float)timeCounter) + ((float)timeCounter) /1000)*3.6));
+										} catch(NumberFormatException ex) {
+											
+											debugView.setText("Keine Distanz eingegeben");
+										}
+										timeView.setText(timeCounter+"s " + timeCounterMS + "ms");
 									}
 								} else {
-									
+
 									count = 0;
 								}
 							}
-							if(TimeCounterMS == 1000)
+							if(timeCounterMS == 1000)
 							{
-								TimeCounter++;
-								TimeCounterMS = 0;
-								timeView.setText(""+TimeCounter+ " s " + TimeCounterMS + " ms");
+								timeCounter++;
+								timeCounterMS = 0;
+								timeView.setText(timeCounter+ "s " + timeCounterMS + "ms");
 							} else
 							{
-								TimeCounterMS++;
-								timeView.setText(""+TimeCounter + " s " + TimeCounterMS + " ms");
+								timeCounterMS++;
+								timeView.setText(timeCounter + "s " + timeCounterMS + "ms");
 							}
 						}
 					});
@@ -225,6 +195,9 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 				public void onClick(DialogInterface dialog, int id)
 				{
 					start.setText("STOP");
+					timeCounter = 0;
+					timeCounterMS = 0;
+					timeView.setText(timeCounter + "s " + timeCounterMS + "ms");
 					sm.registerListener(listener.get(0), s2, SensorManager.SENSOR_DELAY_FASTEST);
 					b_start = true;
 				}
@@ -249,8 +222,8 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 			this.tsec = new Timer();
 			this.tms = new Timer();
 
-			this.TimeCounter = this.TimeCounterMS = 0;
-			this.timeView.setText(""+TimeCounter+" s " + TimeCounterMS + " ms");
+			this.timeCounter = this.timeCounterMS = 0;
+			this.timeView.setText(""+timeCounter+" s " + timeCounterMS + " ms");
 		}
 	}
 	@Override

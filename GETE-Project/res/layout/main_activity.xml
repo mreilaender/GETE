@@ -81,9 +81,9 @@
         android:id="@+id/debug"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/numberPicker1"
-        android:layout_marginBottom="55dp"
-        android:layout_toRightOf="@+id/numberPicker1"
-        android:text="TextView" />
+        android:layout_above="@+id/start_stop_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:textSize="50sp" />
 
 </RelativeLayout>
