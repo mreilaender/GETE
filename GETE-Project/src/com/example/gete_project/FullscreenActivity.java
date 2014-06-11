@@ -33,14 +33,15 @@ import android.widget.TextView;
 public class FullscreenActivity extends Activity implements OnClickListener, OnItemSelectedListener
 {
 	private boolean jo, b_start;
+	private float aMax;
 	private Timer tsec, tms;
 	//TimeCounter - counter that increments every secound
 	//TimeCounterMs - counter that increments every millisecound 
-	private int TimeCounter, TimeCounterMS, maxValues;
+	private int TimeCounter, TimeCounterMS, maxValues, count;
 	private ArrayList<Listener> listener;
 	public Button start;
 	private String[] options, numbValues;
-	public TextView headLine, timeView;
+	public TextView headLine, timeView, debugView;
 	private SensorManager sm;
 	public Sensor s1, s2;
 	private Spinner spinner;
@@ -57,48 +58,50 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 		jo = false;
 		b_start = false;
 		maxValues = 1000;
-		
+		aMax = 0;
+
 		/* Objekt Attribute setzen */
 		numbValues = new String[maxValues];
 		for(int i = 0;i < numbValues.length;++i)
 			numbValues[i] = ""+i;
-		
+
 		numberPicker = (NumberPicker) findViewById(R.id.numberPicker1);
 		numberPicker.setMinValue(1);
 		numberPicker.setMaxValue(maxValues);
 		numberPicker.setValue(1);
-		
+
 		options = new String[3];
 		options[0] = "Meter";
 		options[1] = "Miles";
 		options[2] = "Feets";
-		
+
 		arrAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item);
 		for(int i = 0;i < options.length;++i)
 			arrAdapter.add(options[i]);
 		arrAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		
+
 		spinner = (Spinner) findViewById(R.id.id_spinner1);
 		spinner.setSelection(1);
 		spinner.setAdapter(arrAdapter);
 		spinner.setOnItemSelectedListener(this);
 		spinner.setVerticalScrollBarEnabled(true);
-//		spinner.setGravity(Gravity.LEFT);
-		
+		//		spinner.setGravity(Gravity.LEFT);
+
 		timeView = (TextView) findViewById(R.id.timeView);
 		headLine = (TextView) findViewById(R.id.headLine);
-//		unitView = (TextView) findViewById(R.id.id_unit);
+		debugView = (TextView) findViewById(R.id.debug);
+		//		unitView = (TextView) findViewById(R.id.id_unit);
 
-//		timeView.setText(""+ (findViewById(R.id.id_spinner1)));
+		//		timeView.setText(""+ (findViewById(R.id.id_spinner1)));
 		tsec = new Timer();
 		tms = new Timer();
-		
+
 		start = (Button) findViewById(R.id.start_stop_button);
-		
+
 		sm = (SensorManager) getSystemService(SENSOR_SERVICE);
-		
+
 		s2 = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-		
+
 		TimeCounter = TimeCounterMS = 0;
 
 		/* Generic Objekte setzen */
@@ -110,14 +113,47 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 		start.setText("START");
 		start.setOnClickListener(this);
 
-		headLine.setText("GETE - Project v1.8.1 Hash: "+this.hashCode());
+		headLine.setText("GETE - Project v1.9.0 Hash: "+this.hashCode());
 	}
 	public void listen(float[] f)
 	{
-//		this.headLine.setText("Test: "+numberPicker.getValue());
+		//		this.headLine.setText("Test: "+numberPicker.getValue());
 		//		int i = 0;
 		//		start.setText("f["+i+"]: "+f[0]);
-		if(f[0]>4.0f && jo == false)
+
+		if(TimeCounter != 0)
+		{
+			if(f[0] < 4.0 && f[1] < 4.0 && f[2] < 4.0) {
+
+				count++;
+				if(count > 20) {
+					if(b_start)
+					{
+						this.tsec.cancel();
+						this.tms.cancel();
+
+						sm.unregisterListener(listener.get(0));
+						start.setText("START");
+
+						this.b_start = this.jo = false;
+
+						this.tsec = new Timer();
+						this.tms = new Timer();
+
+						debugView.setText(TimeCounter + ":" + TimeCounterMS);
+
+						this.TimeCounter = this.TimeCounterMS = 0;
+						this.timeView.setText("0 s 0 ms");
+
+					}
+				}
+			} else {
+
+				count = 0;
+			}
+		}
+
+		else if((f[0]>5.0f || f[1]>5.0f || f[2]>5.0f) && jo == false)
 		{
 			//			start.setText("in if");
 			jo=true;
@@ -143,75 +179,6 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 							if(TimeCounterMS == 1000)
 								TimeCounterMS = 0;
 							timeView.setText(""+TimeCounter + " s " + TimeCounterMS + " ms"); // you can set it to a textView to show it to the user to see the time passing while he is writing.
-							TimeCounterMS++;
-						}
-					});
-
-				}
-			}, 0, 1);
-		}
-		if(f[1]>4.0f && jo == false)
-		{
-			//			start.setText("in if");
-			jo=true;
-			tsec.scheduleAtFixedRate(new TimerTask() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					runOnUiThread(new Runnable() {
-						public void run() {
-
-							timeView.setText(""+TimeCounter+ " s " + TimeCounterMS + " ms");
-							TimeCounter++;
-						}
-					});
-
-				}
-			}, 0, 1000);
-			tms.scheduleAtFixedRate(new TimerTask() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					runOnUiThread(new Runnable() {
-						public void run() {
-							if(TimeCounterMS == 1000)
-								TimeCounterMS = 0;
-							timeView.setText(""+TimeCounter+ " s " + TimeCounterMS + " ms");
-							TimeCounterMS++;
-						}
-					});
-
-				}
-			}, 0, 1);
-		}
-		if(f[2]>4.0f && jo==false)
-		{
-			//			start.setText("in if");
-			jo=true;
-			tsec.scheduleAtFixedRate(new TimerTask()
-			{
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					runOnUiThread(new Runnable() {
-						public void run() {
-							timeView.setText(""+TimeCounter+ " s " + TimeCounterMS + " ms");
-							TimeCounter++;
-						}
-					});
-
-				}
-			}, 0, 1000);
-
-			tms.scheduleAtFixedRate(new TimerTask() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					runOnUiThread(new Runnable() {
-						public void run() {
-							if(TimeCounterMS == 1000)
-								TimeCounterMS = 0;
-							timeView.setText(""+TimeCounter+ " s " + TimeCounterMS + " ms");
 							TimeCounterMS++;
 						}
 					});
@@ -246,7 +213,7 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 		{
 			this.tsec.cancel();
 			this.tms.cancel();
-			
+
 			sm.unregisterListener(listener.get(0));
 			start.setText("START");
 
@@ -263,8 +230,8 @@ public class FullscreenActivity extends Activity implements OnClickListener, OnI
 	public void onItemSelected(AdapterView<?> arg0, View view, int position, long id)
 	{
 		spinner.setSelection(position);
-//		unitView.setText(""+spinner.getSelectedItem());
-//		spinner.setPrompt("[SELECT UNIT ...] selected: " + spinner.getSelectedItem());
+		//		unitView.setText(""+spinner.getSelectedItem());
+		//		spinner.setPrompt("[SELECT UNIT ...] selected: " + spinner.getSelectedItem());
 	}
 	@Override
 	public void onNothingSelected(AdapterView<?> arg0) {

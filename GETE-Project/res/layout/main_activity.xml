@@ -75,7 +75,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/headLine"
-         />
+        android:layout_below="@+id/headLine" />
+
+    <TextView
+        android:id="@+id/debug"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/numberPicker1"
+        android:layout_marginBottom="55dp"
+        android:layout_toRightOf="@+id/numberPicker1"
+        android:text="TextView" />
 
 </RelativeLayout>
